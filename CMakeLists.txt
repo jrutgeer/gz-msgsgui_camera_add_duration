@@ -30,36 +30,6 @@ install(
 # Set project-specific options
 #============================================================================
 
-# Cross-compilation related options
-# In a cross-compilation scenario, it is possible that the gz_msgs_gen
-# generator compiled for the target machine cannot be used to generate
-# the C++ code corresponding to the .proto definition. For this scenario,
-# the following two options can be used as follows.
-# First of all, gz-msgs is compiled targeting the host machine, and in the
-# build targeting the host, the INSTALL_GZ_MSGS_GEN_EXECUTABLE option is
-# enabled:
-# > cmake -DINSTALL_GZ_MSGS_GEN_EXECUTABLE:BOOL=ON ..
-# ensuring that the gz_msgs_gen is installed in
-# <host_install_prefix>/bin/gz_msgs_gen . Then, the same version of gz-msgs
-# can be cross-compiled, and in the cross-compilation build the location of the
-# host gz_msgs_gen is specified via the GZ_MSGS_GEN_EXECUTABLE
-# CMake cache variable:
-# > cmake -GZ_MSGS_GEN_EXECUTABLE=<host_install_prefix>/bin/gz_msgs_gen ..
-
-option(
-  INSTALL_GZ_MSGS_GEN_EXECUTABLE
-  "Install the gz_msgs_gen executable."
-  OFF)
-
-mark_as_advanced(INSTALL_GZ_MSGS_GEN_EXECUTABLE)
-
-set(
-  GZ_MSGS_GEN_EXECUTABLE
-  "$<TARGET_FILE:gz_msgs_gen>"
-  CACHE STRING
-  "gz_msgs_gen executable used in the gz_msgs_protoc CMake function.")
-mark_as_advanced(GZ_MSGS_GEN_EXECUTABLE)
-
 #============================================================================
 # Search for project-specific dependencies
 #============================================================================
@@ -74,7 +44,7 @@ gz_find_package(GzProtobuf
 
 #--------------------------------------
 # Find gz-utils
-gz_find_package(gz-utils2 REQUIRED)
+gz_find_package(gz-utils2 REQUIRED COMPONENTS cli)
 set(GZ_UTILS_VER ${gz-utils2_VERSION_MAJOR})
 
 #--------------------------------------
@@ -93,12 +63,12 @@ set(GZ_TOOLS_VER 1)
 
 #--------------------------------------
 # Find Tinyxml2
-gz_find_package(TINYXML2 REQUIRED PRIVATE PRETTY tinyxml2)
+gz_find_package(TINYXML2 REQUIRED PRETTY tinyxml2)
 
 #============================================================================
 # Configure the build
 #============================================================================
-gz_configure_build(QUIT_IF_BUILD_ERRORS COMPONENTS compiled)
+gz_configure_build(QUIT_IF_BUILD_ERRORS)
 
 #============================================================================
 # gz command line support
@@ -129,7 +99,6 @@ gz_create_packages()
 #============================================================================
 configure_file(${CMAKE_SOURCE_DIR}/api.md.in ${CMAKE_BINARY_DIR}/api.md)
 configure_file(${CMAKE_SOURCE_DIR}/tutorials.md.in ${CMAKE_BINARY_DIR}/tutorials.md)
-
 
 gz_create_docs(
   API_MAINPAGE_MD "${CMAKE_BINARY_DIR}/api.md"
